@@ -59,14 +59,14 @@
 
     - 三个核心部分组成：buffer（缓冲区）、channel（管道）、selector（选择器）。
       
-      - Buffer就是一块内存区域，存有socket/file的原始数据，主要跟channel交互。
+      - Buffer就是一块内核内存区域，存有socket/file的原始数据，主要跟channel交互。
       - Channel是对socket/file的一层封装，方便selector对socket的管理。
       
       - Selector这个类是select/poll/epoll的外包装类。在不同的平台上，底层的实现有所不同。
 
     >进程之间的Socket通信相当于一种IO。当交互很多，数据很少时，我们也能使用多线程的方式处理IO，但创建和切换线程需要的资源太多，所以多路复用机制是更好的选择。
     >
-    >linux中提供了select/poll/epoll来为我们实现多路复用机制。select/poll/epoll可以帮助服务端把所有的客户端socket连接管理起来，同时观察许多socket的IO事件，由此我们就可以逐个处理socket上准备好的IO事件，我们把这个轮询的过程都交给select/poll/epoll来实现了。
+    >linux中提供了select/poll/epoll来为我们实现多路复用机制。select/poll/epoll可以帮助服务端把所有的客户端socket连接管理起来，同时观察许多socket的IO事件，由此我们就可以逐个处理socket上准备好的IO事件，我们把这个轮询的过程都交给select/poll/epoll来实现。
 
 18. **深拷贝/浅拷贝**：都需要实现 Cloneable 接口，然后重写clone()方法。
 
@@ -94,7 +94,7 @@
 5. ArrayList线程不安全，每次扩容0.5倍；Vector线程安全，每次扩容1倍（淘汰）。
 4. HashSet实际上封装了HashMap，键是要存储的元素，值是一个Object对象。LinkedHashSet/Treeset同理。
 5. HashMap线程不安全；HashTable线程安全（淘汰）。
-6. HashMap每次扩容两倍，为了方便对哈希值进行**与**运算。
+6. HashMap每次扩容两倍，为了方便对哈希值进行**&**运算，重哈希时新增的哈希值高位随机置0/1。
 7. 哈希表：底层是数组 + 链表/红黑树。当链表达到一定长度时（8）变为红黑树。
 8. 迭代器Iterator代替了Enumeration。Iterator线程安全，因为当一个集合被遍历的时候，它会阻止其他线程去修改集合。
 9. Hashtable、Vector加锁的粒度大：直接在方法声明处使用synchronized。
