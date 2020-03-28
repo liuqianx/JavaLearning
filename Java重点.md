@@ -95,11 +95,13 @@
 4. HashSet实际上封装了HashMap，键是要存储的元素，值是一个Object对象。LinkedHashSet/Treeset同理。
 5. HashMap线程不安全；HashTable线程安全（淘汰）。
 6. HashMap每次扩容两倍，为了方便对哈希值进行**&**运算，重哈希时新增的哈希值高位随机置0/1。
-7. 哈希表：底层是数组 + 链表/红黑树。当链表达到一定长度时（8）变为红黑树。
-8. 迭代器Iterator代替了Enumeration。Iterator线程安全，因为当一个集合被遍历的时候，它会阻止其他线程去修改集合。
-9. Hashtable、Vector加锁的粒度大：直接在方法声明处使用synchronized。
-10. ConcurrentHashMap、CopyOnWriteArrayList加锁粒度小：他们用各种的方式来实现线程安全。
-11. List因为元素有序且允许插入重复值，可以通过随机访问/顺序访问来知道元素的位置；但Set和Map因为元素无序，为了更好的查找元素，产生了哈希表和红黑树两种实现方式。
+7. HashMap在多线程下做put操作，可能多个线程同时做rehash操作导致循环键表出现。
+8. Fail-Fast：Fail-Fast机制是java集合中的一种异常机制。当多个线程对同一个集合的内容进行操作时，就可能会产生fail-fast事件。集合通过维护比较一个修改次数值（modCount）来发现是否触发fail-fast事件。
+9. 哈希表：底层是数组 + 链表/红黑树。当链表达到一定长度时（8）变为红黑树。
+10. 迭代器Iterator代替了Enumeration。Iterator线程安全，因为当一个集合被遍历的时候，它会阻止其他线程去修改集合。
+11. Hashtable、Vector加锁的粒度大：直接在方法声明处使用synchronized。
+12. ConcurrentHashMap、CopyOnWriteArrayList加锁粒度小：他们用各种的方式来实现线程安全。
+13. List因为元素有序且允许插入重复值，可以通过随机访问/顺序访问来知道元素的位置；但Set和Map因为元素无序，为了更好的查找元素，产生了哈希表和红黑树两种实现方式。
 
 #### List：元素有序
 
@@ -121,7 +123,7 @@
 
 #### Map：键值映射
 
-- HashMap：基于哈希表，存储自定义类对象时同样需要重写hashCode()和equals()。
+- HashMap：基于哈希表。
   - LinkedHashMap：基于哈希表和链表，使得存取有序。
 - TreeMap：基于红黑树，需要比较所以自定义类需要实现Comparable接口。（有序）
 - ConcurrentHashMap：基于哈希表。ConcurrentHashMap通过锁分段技术和volatile实现同步；
