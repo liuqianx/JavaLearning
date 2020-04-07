@@ -44,8 +44,6 @@
 
 **分表**：数据库的水平切分：把数据按行分配到不同的数据库实例上；垂直切分：按列分布到不同数据库上。
 
-**一致性哈希**：分表/使用集群时，把数据随机分配到各节点中的方法。对2^32取模，哈希值空间形成一个Hash环，然后将节点映射至环上。当数据映射到环上后顺时针移动，第一个遇到的节点即是其应该定位到的节点。
-
 
 
 ## 2. 相关工具
@@ -54,7 +52,7 @@
 
 **JDBC**：用于连接多种数据库，执行SQL语句的Java API。JDBC只是一个规范，里面只定义了接口，由各种数据库去实现。。
 
-**MyBatis**：一种ORM框架（Object-Relational Mapping），封装了JDBC。ORM可以将数据库的一张表映射成一个POJO类。
+**MyBatis**：一种ORM框架（Object-Relational Mapping），封装了JDBC。MyBatis注重于POJO类与SQL的映射。而Hibernate注重于POJO类与数据表的映射。
 
 **Druid**：一种数据库连接池。因为建立数据库连接是一个非常耗时、耗资源的行为，所以通过连接池预先同数据库建立一些连接，放在内存中，应用程序需要建立数据库连接时直接到连接池中申请一个就行，用完后再放回去，极大的提高了数据库连接的性能问题。
 
@@ -68,7 +66,7 @@
 
 **Jackson**：Java的高性能JSON处理器。
 
-**ElasticSearch**：Elasticsearch 在 Lucene 的基础上进行封装。原理：读取内容—>分词—>建立反向索引。Elasticsearch 把操作都封装成了 HTTP 的 API。索引对应一个数据库，类型对应一个表定义，文档对应一条数据。
+**ElasticSearch**：Elasticsearch 在 Lucene 的基础上进行封装。原理：读取内容—>分词—>建立反向索引。Elasticsearch 把操作都封装成了基于HTTP的 API。索引对应一个数据库，类型对应一个表定义，文档对应一条数据。
 
 **docker**：一种容器技术，思想是将开发环境一起打包镜像，避免部署时的环境问题。dockerfile记录镜像的制作步骤。镜像、容器、仓库的概念可以类比代码、进程、github。
 
@@ -82,13 +80,17 @@
 - Data Access
 - Build web application by Spring MVC
 
-**DI**：依赖注入是将不同对象进行关联的一种方式。去除Java类之间的依赖关系，实现松耦合。例如A类要依赖B类，A类不再直接创建B类，而是把这种依赖关系配置在外部xml文件中。基于构造函数/set函数。本质上是工厂模式+Java反射机制。
+**IOC**：Spring容器里面有着各种Bean，Bean是我们开发的一个类，我们通过注解/配置文件的方式把Bean注入到Spring容器中。注入到Spring容器中后，Spring容器就有了这个Bean的控制权，后面我们每次要用到容器中的某个Bean时，对象由Spring容器来创建，我们直接使用@Autowired引入这个实例即可，降低了耦合。Bean在Spring容器中默认只创建一个实例（Singleton）。
 
-<img src="C:\Users\ag\AppData\Roaming\Typora\typora-user-images\image-20191225155136267.png" alt="image-20191225155136267" style="zoom:33%;" /> —————— <img src="C:\Users\ag\AppData\Roaming\Typora\typora-user-images\image-20191225155210945.png" alt="image-20191225155210945" style="zoom:33%;" />
+既然Spring容器需要有Bean的生产和控制权，那么就需要用到工厂模式 + Java反射机制。IOC容器即是一个工厂，这个工厂生产的对象就是Bean，我们利用反射机制根据Bean类名来生产相应的对象。
 
-**IOC容器**：具有依赖注入功能的容器，它可以创建对象，IOC 容器负责实例化、定位、配置应用程序中的对象及建立这些对象间的依赖。BeanFactory是IOC容器的实际代表。
+**AOP**：我们经常需要用到一些Bean所共用的同时与业务逻辑无关的功能，比如日志、安全等功能。这时候我们就涉及到Spring的AOP特性。我们通过动态代理的方式把这些功能织入到目标类中。
 
-**AOP**：Aspect Oriented Program，在运行时，动态地将代码切入到类的指定方法、指定位置上。我们管切入到指定类指定方法的代码片段称为切面，而切入到哪些类、哪些方法则叫切入点。我们就可以把几个类共有的代码，抽取到一个切片中，等到需要时再切入对象中去，从而改变其原有的行为。AOP通过动态代理机制实现。
+首先我们使用一个代理类伪装成目标类，代理类包括了我们需要添加的功能，同时还会截取目标类的方法调用；我们对目标类的调用都转变成了对代理类的调用，因此我们就首先执行了需要添加的功能，然后再把对目标类的方法调用转发给真正的目标类执行。
+
+**JDK动态代理**：代理类与委托类实现同一接口，主要是通过代理类实现InvocationHandler并重写invoke方法来进行动态代理的，在invoke方法中将对方法进行增强处理。
+
+**CGLIB动态代理**：代理类将委托类作为自己的父类并为其中的委托方法创建两个方法，一个是与委托方法签名相同的方法，它在方法中会通过super调用委托方法；另一个是代理类独有的方法。
 
 **Spring ApplicationContext 容器**：Application Context 是 BeanFactory 的子接口，也被成为 Spring 上下文。ApplicationContext 包含 BeanFactory 所有的功能，相对于 BeanFactory，ApplicationContext 会更加优秀。
 

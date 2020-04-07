@@ -18,7 +18,7 @@
 
 7. **向下转型**： Son s1 = (Son) f1—— 子类引用s1指向一个子类对象，父类引用f1还是指向子类对象。
 
-8. **接口/抽象类**：抽象类是对根源的抽象，而接口是对动作的抽象。抽象类主要是用来抽象类别，接口主要是用来抽象方法功能。当你关注事物的本质的时候，用抽象类；当你关注一种操作的时候，用接口。
+8. **接口/抽象类**：抽象类是对根源的抽象，而接口是对动作的抽象。抽象类主要是用来抽象类别，接口主要是用来抽象方法功能。当关注事物的本质的时候，用抽象类；当关注一种操作的时候，用接口。
 
    接口里面只能对方法进行声明，抽象类既可以对方法进行声明也可以对方法进行实现；抽象类除了无法被实例化，和普通的类几乎一样；一个类只能继承一个抽象类，但能实现多个接口。
 
@@ -59,7 +59,7 @@
 
     - 三个核心部分组成：buffer（缓冲区）、channel（管道）、selector（选择器）。
       
-      - Buffer就是一块内核内存区域，存有socket/file的原始数据，主要跟channel交互。
+      - Buffer就是一块内存区域，这块内存被包装成NIO Buffer对象，并提供了一组方法，用来方便的访问该块内存。存有socket/file的原始数据，主要跟channel交互。
       - Channel是对socket/file的一层封装，方便selector对socket的管理。
       
       - Selector这个类是select/poll/epoll的外包装类。在不同的平台上，底层的实现有所不同。
@@ -68,24 +68,32 @@
     >
     >linux中提供了select/poll/epoll来为我们实现多路复用机制。select/poll/epoll可以帮助服务端把所有的客户端socket连接管理起来，同时观察许多socket的IO事件，由此我们就可以逐个处理socket上准备好的IO事件，我们把这个轮询的过程都交给select/poll/epoll来实现。
 
-18. **深拷贝/浅拷贝**：都需要实现 Cloneable 接口，然后重写clone()方法。
+18. **Netty**：基于NIO的网络框架， 封装了Java NIO复杂的底层细节，方便我们处理socket，快速开发高性能、高可靠性的网络服务器和客户端程序。
 
-    - 浅拷贝：对基本数据类型进行值传递，对引用数据类型进行引用传递般的拷贝。
+19. **深拷贝/浅拷贝**：都需要实现 Cloneable 接口，然后重写clone()方法。
 
-    - 深拷贝：对基本数据类型进行值传递，对引用数据类型，创建一个新的对象，并复制其内容。
+    - 引用拷贝：不会生成新的对象，只会在原对象上增加了一个新的对象引用。
 
-19. **==/equals()**：
+    - 浅拷贝：被浅拷贝的对象会重新生成一个新的对象；对于对象属性中的基本数据类型进行值传递，对于对象属性中的引用数据类型进行引用拷贝。
+
+    - 深拷贝：对于对象中基本数据类型进行值传递，对引用数据类型，创建一个新的对象，并复制其内容。
+
+20. **==/equals()**：
 
     - 基本数据类型：==比较的是他们的值，equals()一般被重写为值比较。
     - 引用数据类型：==和equals()比较的都是内存地址。
 
     > equals()默认比较内存地址，但很多类重写了equals方法，比如String、Integer把它变成了值比较。
 
-20. **hashCode()/equals()**：我们在比较对象是否相等时，首先比较他们的hashCode()，然后才是用equals()来对他们的内存地址进行比较。所以我们将某个类的equals()重写为值比较时，同时需要重写hashCode()。
+21. **hashCode()/equals()**：我们在比较对象是否相等时，首先比较他们的hashCode()，然后才是用equals()来对他们的内存地址进行比较。所以我们将某个类的equals()重写为值比较时，同时需要重写hashCode()。
 
-21. **Java反射机制**：当每个类被装载时，会在Java堆上自动创建一个对应的**Class类**对象（反射类），用来实例化这个类的所有对象，我们可以通过反射机制得到一个实例对象的Class类对象。可以应用在泛型，另外可以使用Class c=Class.forName("MyObject")来获得Class类对象，然后用Class类的newInstance()来创建实例对象，这种方式被应用于工厂模式。另外JDK使用反射机制实现动态代理。
+22. **Java反射机制**：当每个类被装载时，会在Java堆上自动创建一个对应的**Class类**对象，用来实例化这个类的所有对象，我们可以通过反射机制得到一个实例对象的Class类对象。可以应用在泛型，另外可以使用Class c=Class.forName("MyObject")来获得Class类对象。
 
-    
+    - 使用反射的目的：创建实例，反射调用方法
+
+    > Class类：在jvm中通过Class类的实例来获取每个Java类的所有信息。包括字段、方法、构造函数等。
+
+
 
 ## 2. 容器
 
@@ -93,15 +101,11 @@
 2. Collections是集合的**工具类**，提供了一系列对集合类进行操作的静态方法，如对集合排序、最大最小等操作。
 5. ArrayList线程不安全，每次扩容0.5倍；Vector线程安全，每次扩容1倍（淘汰）。
 4. HashSet实际上封装了HashMap，键是要存储的元素，值是一个Object对象。LinkedHashSet/Treeset同理。
-5. HashMap线程不安全；HashTable线程安全（淘汰）。
-6. HashMap每次扩容两倍，为了方便对哈希值进行**&**运算，重哈希时新增的哈希值高位随机置0/1。
-7. HashMap在多线程下做put操作，可能多个线程同时做rehash操作导致循环键表出现。
-8. Fail-Fast：Fail-Fast机制是java集合中的一种异常机制。当多个线程对同一个集合的内容进行操作时，就可能会产生fail-fast事件。集合通过维护比较一个修改次数值（modCount）来发现是否触发fail-fast事件。
-9. 哈希表：底层是数组 + 链表/红黑树。当链表达到一定长度时（8）变为红黑树。
 10. 迭代器Iterator代替了Enumeration。Iterator线程安全，因为当一个集合被遍历的时候，它会阻止其他线程去修改集合。
-11. Hashtable、Vector加锁的粒度大：直接在方法声明处使用synchronized。
-12. ConcurrentHashMap、CopyOnWriteArrayList加锁粒度小：他们用各种的方式来实现线程安全。
-13. List因为元素有序且允许插入重复值，可以通过随机访问/顺序访问来知道元素的位置；但Set和Map因为元素无序，为了更好的查找元素，产生了哈希表和红黑树两种实现方式。
+6. Fail-Fast：Fail-Fast机制是java集合中的一种异常机制。当多个线程对同一个集合的内容进行操作时，就可能会产生fail-fast事件。集合通过维护比较**结构**修改次数值（modCount）来决定是否触发fail-fast事件。
+7. Hashtable、Vector加锁的粒度大：直接在方法声明处使用synchronized。
+8. ConcurrentHashMap、CopyOnWriteArrayList加锁粒度小：他们用各种的方式来实现线程安全。
+9. List因为元素有序且允许插入重复值，可以通过随机访问/顺序访问来知道元素的位置；但Set和Map因为元素无序，为了更好的查找元素，产生了哈希表和红黑树两种实现方式。
 
 #### List：元素有序
 
@@ -127,11 +131,42 @@
   - LinkedHashMap：基于哈希表和链表，使得存取有序。
 - TreeMap：基于红黑树，需要比较所以自定义类需要实现Comparable接口。（有序）
 - ConcurrentHashMap：基于哈希表。ConcurrentHashMap通过锁分段技术和volatile实现同步；
-  - 一个ConcurrentHashMap实例中包含一个由多个Segment实例组成的数组（一个Segment就相当于一个小哈希表），一个Segment实例又包含多个桶，一个桶包含一条由多个HashEntry 对象连接起来的链表。
+  - 一个ConcurrentHashMap实例中包含一个由多个Segment实例组成的数组（一个Segment就相当于一个小哈希表），一个Segment实例包含多个桶。
   - Segment类继承自ReentrantLock类，所以可以在多个不同Segment上同步进行写操作。
   - ConcurrentHashMap的value域被volatile修饰，可以保证线程的读操作可以读到最新的值，所以读操作不需要上锁。
 
 
 
+## 3. HashMap详解
 
+#### HashMap的数据结构：
 
+1. 底层数据结构：数组 + 链表/红黑树，在链表长度到达8时转换成红黑树。
+2. 转为红黑树节点后，链表的结构还存在，通过 next 属性维持，红黑树节点在进行操作时都会维护链表的结构，并不是转为红黑树节点，链表结构就不存在了。
+3. 参数有threshold、loadFactor、size（threshold = length * Load factor，size > threshold时进行扩容）。也就是说，在数组定义好长度之后，负载因子越大，所能容纳的键值对个数越多。
+
+#### 定位hash桶索引位置：
+
+1. 得到key的HashCode值，hash = key.hashCode()
+
+2. 为了降低hash冲突，将HashCode的高16位也参与运算，hash ^ (hash >> 16)
+
+3. 为了高效将取余运算转换成位运算，hash & (table.length - 1)。
+
+   >  x **mod** table.length = x **&** (table.length - 1)
+
+   <img src="https://img-blog.csdn.net/20180721235229659?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3YxMjM0MTE3Mzk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="img" style="zoom:80%;" />
+
+#### HashMap的扩容：
+
+当size > threshold时，HashMap就会扩大他的数组至两倍。原来的元素就要进行重哈希，原来的元素的重哈希时将原来hash新增的bit随机置0/1。
+
+<img src="https://img-blog.csdn.net/20170805175936719?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbG9naW5fc29uYXRh/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="img" style="zoom:60%;" />
+
+#### HashMap的线程安全性
+
+1. HashMap线程不安全；HashTable线程安全（淘汰）。
+
+2. HashMap在多线程下做put操作，可能多个线程同时做rehash操作导致死循环。
+
+   
