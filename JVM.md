@@ -119,7 +119,7 @@ Java程序通过栈上的reference数据来访问堆上的具体对象。对象�
 
 #### 区域分配：
 
-为了更好的回收/分配内存，Java堆可分为新生代和老年代，又可细分为Eden、From Survivor(s0)、To Survivor(s1)，Tentired（老年代）。为什么这么设计？主要是为了延缓对象到老年代的过程，从而减少old gc。
+为了更好的回收/分配内存，Java堆可分为新生代和老年代，又可细分为Eden、From Survivor(s0)、To Survivor(s1)，Tentired（老年代）。这么设计主要是为了延缓对象到老年代的过程，从而减少old gc。
 
 经过一次MinorGC后，Eden区和s0区将被清空，此时s0和s1将交换角色（复制算法）。
 
@@ -200,15 +200,15 @@ Java程序通过栈上的reference数据来访问堆上的具体对象。对象�
 
 #### 垃圾收集器：
 
-| 种类               | 范围       | 单/多线程 | 处理算法  | 侧重点            |
-| ------------------ | ---------- | --------- | --------- | ----------------- |
-| Serial             | 新生代     | 单线程    | 复制      | 适用于Client 模式 |
-| ParNew             | 新生代     | 多线程    | 复制      |                   |
-| Parallel Scanvenge | 新生代     | 多线程    | 复制      | 吞吐量            |
-| Serial Old         | 老年代     | 单线程    | 标记-整理 |                   |
-| Parallel Old       | 老年代     | 多线程    | 标记-整理 |                   |
-| CMS                | 老年代     | 多线程    | 标记-清除 | 停顿时间          |
-| G1                 | 整个Java堆 | 多线程    | 复制      | 停顿时间          |
+| 种类               | 范围       | 单/多线程  | 处理算法  | 侧重点            |
+| ------------------ | ---------- | ---------- | --------- | ----------------- |
+| Serial             | 新生代     | 单线程     | 复制      | 适用于Client 模式 |
+| ParNew             | 新生代     | 多线程并行 | 复制      |                   |
+| Parallel Scanvenge | 新生代     | 多线程并行 | 复制      | 吞吐量            |
+| Serial Old         | 老年代     | 单线程     | 标记-整理 |                   |
+| Parallel Old       | 老年代     | 多线程并行 | 标记-整理 |                   |
+| CMS                | 老年代     | 多线程并发 | 标记-清除 | 停顿时间          |
+| G1                 | 整个Java堆 | 多线程并发 | 复制      | 停顿时间          |
 
 
 
@@ -231,7 +231,7 @@ CMS收集器仅作用于老年代的收集，是基于标记-清除算法的，�
 2. G1不再把内存区域分成Eden、Survior、old三大块，而是把堆内存**切分成很多个固定大小的区域**（Region）。每个区域都是一块连续的内存，默认均分成2048份。G1最大的特点就是高效的执行回收，优先去回收那些大量对象可回收的region。
 3. 每个Region都被标记了Eden、Survivor、Old。每次GC存活的对象从一个Region复制到另一个Region。
 4. G1提供了两种GC模式，Young GC和Mixed GC，两种都是Stop The World（所有线程会被暂停）。
-5. **Young GC**会回收所有Eden以及Survivor区，并且将存活对象复制到另一部分的Survivor区或是Old区。
+5. **Young GC**会回收Eden以及Survivor区，并且将存活对象复制到另一部分的Survivor区或是Old区。
 6. **Mixed GC**不是full GC，它只能回收部分老年代的Region。当Mixed GC的速度实在跟不上程序分配内存的速度时，会使用Serial Old GC（full GC）来收集整个Java堆。
 7. G1回收流程：
    - **初始标记**：STW，标记出从GC Roots开始直接可达的对象。

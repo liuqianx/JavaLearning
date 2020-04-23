@@ -6,7 +6,7 @@
 
 2. **static/final关键字**：static强调程序运行期间变量始终存在于内存；final强调变量只能被赋值一次。
 
-3. **基本数据类型/包装数据类型**：有8个，每个包装数据类型都封装了相应的基本数据类型，并提供了一些有用的方法。例如int和Integer，char和Character。（拆箱装箱）
+3. **基本数据类型/包装数据类型**：各有8个，每个包装数据类型都封装了相应的基本数据类型，并提供了一些有用的方法。例如int和Integer，char和Character。（拆箱装箱）
 
 4. **引用数据类型**：除去以上的8种基本数据类型，其他的都是引用类型，也就是Object。分为5种：类，接口，数组，枚举，注解。
 
@@ -51,7 +51,7 @@
 
 17. **NIO(Non-blocking IO)**：
 
-    <img src="https://lh4.googleusercontent.com/proxy/TJcB6BsxgccvnilEnwC9fp1WXrVYt21vU7o0tkzx7_8cCHJLf5ogmyArW35reXwfEMaLiA-mDICEq6D2FQ" alt="“buffer selector channel”的图片搜索结果" style="zoom:50%;" />
+    <img src="https://lh4.googleusercontent.com/proxy/TJcB6BsxgccvnilEnwC9fp1WXrVYt21vU7o0tkzx7_8cCHJLf5ogmyArW35reXwfEMaLiA-mDICEq6D2FQ" alt="“buffer selector channel”的图片搜索结果" style="zoom:60%;" />
 
     - IO是面向流的处理，NIO是面向块（缓冲区）的处理。
 
@@ -59,7 +59,7 @@
 
     - 三个核心部分组成：buffer（缓冲区）、channel（管道）、selector（选择器）。
       
-      - Buffer就是一块内存区域，这块内存被包装成NIO Buffer对象，并提供了一组方法，用来方便的访问该块内存。存有socket/file的原始数据，主要跟channel交互。
+      - Buffer就是一块内核内存区域，这块内存被包装成NIO Buffer对象，并提供了一组方法，用来方便的访问该块内存。存有socket/file的原始数据，主要跟channel交互。
       - Channel是对socket/file的一层封装，方便selector对socket的管理。
       
       - Selector这个类是select/poll/epoll的外包装类。在不同的平台上，底层的实现有所不同。
@@ -68,7 +68,7 @@
     >
     >linux中提供了select/poll/epoll来为我们实现多路复用机制。select/poll/epoll可以帮助服务端把所有的客户端socket连接管理起来，同时观察许多socket的IO事件，由此我们就可以逐个处理socket上准备好的IO事件，我们把这个轮询的过程都交给select/poll/epoll来实现。
 
-18. **Netty**：基于NIO的网络框架， 封装了Java NIO复杂的底层细节，方便我们处理socket，快速开发高性能、高可靠性的网络服务器和客户端程序。
+18. **Netty**：基于NIO的网络框架， 封装了Java NIO复杂的底层细节，方便我们处理TCP/UDP socket，快速开发高性能、高可靠性的网络服务器和客户端程序。
 
 19. **深拷贝/浅拷贝**：都需要实现 Cloneable 接口，然后重写clone()方法。
 
@@ -105,7 +105,8 @@
 6. Fail-Fast：Fail-Fast机制是java集合中的一种异常机制。当多个线程对同一个集合的内容进行操作时，就可能会产生fail-fast事件。集合通过维护比较**结构**修改次数值（modCount）来决定是否触发fail-fast事件。
 7. Hashtable、Vector加锁的粒度大：直接在方法声明处使用synchronized。
 8. ConcurrentHashMap、CopyOnWriteArrayList加锁粒度小：他们用各种的方式来实现线程安全。
-9. List因为元素有序且允许插入重复值，可以通过随机访问/顺序访问来知道元素的位置；但Set和Map因为元素无序，为了更好的查找元素，产生了哈希表和红黑树两种实现方式。
+
+   
 
 #### List：元素有序
 
@@ -141,17 +142,17 @@
 
 #### HashMap的数据结构：
 
-1. 底层数据结构：数组 + 链表/红黑树，在链表长度到达8时转换成红黑树。
-2. 转为红黑树节点后，链表的结构还存在，通过 next 属性维持，红黑树节点在进行操作时都会维护链表的结构，并不是转为红黑树节点，链表结构就不存在了。
+1. 底层数据结构：数组 + 链表/红黑树，在链表长度增长到8时转换成红黑树，减少到6时退化成链表。
+2. 转为红黑树节点后，链表的结构还存在，通过 next 属性维持，红黑树节点在进行操作时会维护链表的结构。
 3. 参数有threshold、loadFactor、size（threshold = length * Load factor，size > threshold时进行扩容）。也就是说，在数组定义好长度之后，负载因子越大，所能容纳的键值对个数越多。
 
 #### 定位hash桶索引位置：
 
-1. 得到key的HashCode值，hash = key.hashCode()
+1. 得到key的HashCode值：hashcode = key.hashCode()
 
-2. 为了降低hash冲突，将HashCode的高16位也参与运算，hash ^ (hash >> 16)
+2. 计算hash值：为了降低hash冲突，将HashCode的高16位也参与运算，hash=hashcode ^ (hashcode >> 16)
 
-3. 为了高效将取余运算转换成位运算，hash & (table.length - 1)。
+3. 计算索引位置：对桶进行取余，优化成类似于掩码的位运算，hash & (table.length - 1)。
 
    >  x **mod** table.length = x **&** (table.length - 1)
 
@@ -159,7 +160,7 @@
 
 #### HashMap的扩容：
 
-当size > threshold时，HashMap就会扩大他的数组至两倍。原来的元素就要进行重哈希，原来的元素的重哈希时将原来hash新增的bit随机置0/1。
+当size > threshold时，HashMap就会扩大他的数组至两倍。原来的元素就要进行重哈希，原来的元素的重哈希时将原来索引位新增的bit随机置0/1。
 
 <img src="https://img-blog.csdn.net/20170805175936719?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbG9naW5fc29uYXRh/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="img" style="zoom:60%;" />
 
