@@ -80,17 +80,17 @@
 - Data Access
 - Build web application by Spring MVC
 
-**IOC**：Spring容器里面有着各种Bean，Bean是我们开发的一个类，我们通过注解/配置文件的方式把Bean注入到Spring容器中。注入到Spring容器中后，Spring容器就有了这个Bean的控制权，后面我们每次要用到容器中的某个Bean时，对象由Spring容器来创建，我们直接使用@Autowired引入这个实例即可，降低了耦合。Bean在Spring容器中默认只创建一个实例（Singleton）。
+**IOC**：Spring容器里面有着各种Bean，Bean是我们开发的一个类，我们通过注解/配置文件的方式把Bean注入到Spring容器中。注入到Spring容器中后，Spring容器就有了这个Bean的控制权，后面我们每次要用到容器中的某个Bean时，对象由Spring容器来创建（即所谓控制反转），我们直接使用@Autowired引入这个实例即可，降低了耦合。Bean在Spring容器中默认只创建一个实例（Singleton）。
 
 既然Spring容器需要有Bean的生产和控制权，那么就需要用到工厂模式 + Java反射机制。IOC容器即是一个工厂，这个工厂生产的对象就是Bean，我们利用反射机制根据Bean类名来生产相应的对象。
 
-**AOP**：我们经常需要用到一些Bean所共用的同时与业务逻辑无关的功能，比如日志、安全等功能。这时候我们就涉及到Spring的AOP特性。我们通过动态代理的方式把这些功能织入到目标类中。
+**AOP**：我们经常需要用到一些Bean所共用的同时与业务逻辑无关的功能，比如日志、安全等功能。这时候我们就涉及到Spring的AOP特性。我们通过动态代理的方式把这些功能织入到目标类中。所谓AOP，其实就是在一些类方法的前后做一些通用的操作，那就涉及到代理。
 
 首先我们使用一个代理类伪装成目标类，代理类包括了我们需要添加的功能，同时还会截取目标类的方法调用；我们对目标类的调用都转变成了对代理类的调用，因此我们就首先执行了需要添加的功能，然后再把对目标类的方法调用转发给真正的目标类执行。
 
-**JDK动态代理**：代理类与委托类实现同一接口，主要是通过代理类实现InvocationHandler并重写invoke方法来进行动态代理的，在invoke方法中将对方法进行增强处理。
+**JDK动态代理**：代理类与委托类**实现同一接口**，主要是通过代理类实现InvocationHandler并重写invoke方法来进行动态代理的，在invoke方法中将对方法进行增强处理。
 
-**CGLIB动态代理**：代理类将委托类作为自己的父类并为其中的委托方法创建两个方法，一个是与委托方法签名相同的方法，它在方法中会通过super调用委托方法；另一个是代理类独有的方法。
+**CGLIB动态代理**：代理类**继承委托类**，并为其中的委托方法创建两个方法：一个是与委托方法签名相同的方法，它在方法中会通过super调用委托方法；另一个是代理类独有的方法。
 
 **Spring ApplicationContext 容器**：Application Context 是 BeanFactory 的子接口，也被成为 Spring 上下文。ApplicationContext 包含 BeanFactory 所有的功能，相对于 BeanFactory，ApplicationContext 会更加优秀。
 

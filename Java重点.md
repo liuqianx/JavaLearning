@@ -2,7 +2,7 @@
 
 ## 1. 基础
 
-1. **静态变量/方法**：主要考虑的是使用时不需要再实例化一个类，方便在没有创建对象的情况下调用。
+1. **静态变量/方法**：主要考虑的是使用时不需要实例化一个类，方便在没有创建对象的情况下调用。
 
 2. **static/final关键字**：static强调程序运行期间变量始终存在于内存；final强调变量只能被赋值一次。
 
@@ -44,30 +44,27 @@
     - RuntimeException：编译能够通过的异常，一般由程序逻辑错误引起。
     - File/IOException：必须处理的异常。必须使用try-catch捕获它，否则程序不能编译通过。
 
-16. **字节流和字符流IO**：Blocking IO
+16. **BIO(Blocking IO):**
 
     - 面向字节（Byte）的InputStream和OutputStream
     - 面向字符（Character）的Reader和Writer（其实也是stream）
 
 17. **NIO(Non-blocking IO)**：
 
-    <img src="https://lh4.googleusercontent.com/proxy/TJcB6BsxgccvnilEnwC9fp1WXrVYt21vU7o0tkzx7_8cCHJLf5ogmyArW35reXwfEMaLiA-mDICEq6D2FQ" alt="“buffer selector channel”的图片搜索结果" style="zoom:60%;" />
-
-    - IO是面向流的处理，NIO是面向块（缓冲区）的处理。
+    - BIO是面向流的处理，NIO是面向块（缓冲区）的处理。
 
     - 采用多路复用模型。
 
     - 三个核心部分组成：buffer（缓冲区）、channel（管道）、selector（选择器）。
-      
+    
       - Buffer就是一块内核内存区域，这块内存被包装成NIO Buffer对象，并提供了一组方法，用来方便的访问该块内存。存有socket/file的原始数据，主要跟channel交互。
       - Channel是对socket/file的一层封装，方便selector对socket的管理。
       
-      - Selector这个类是select/poll/epoll的外包装类。在不同的平台上，底层的实现有所不同。
-
+      - Selector类是select/poll/epoll的外包装类。在不同的平台上，底层的实现有所不同。
+    
     >进程之间的Socket通信相当于一种IO。当交互很多，数据很少时，我们也能使用多线程的方式处理IO，但创建和切换线程需要的资源太多，所以多路复用机制是更好的选择。
     >
     >linux中提供了select/poll/epoll来为我们实现多路复用机制。select/poll/epoll可以帮助服务端把所有的客户端socket连接管理起来，同时观察许多socket的IO事件，由此我们就可以逐个处理socket上准备好的IO事件，我们把这个轮询的过程都交给select/poll/epoll来实现。
-
 18. **Netty**：基于NIO的网络框架， 封装了Java NIO复杂的底层细节，方便我们处理TCP/UDP socket，快速开发高性能、高可靠性的网络服务器和客户端程序。
 
 19. **深拷贝/浅拷贝**：都需要实现 Cloneable 接口，然后重写clone()方法。
@@ -87,11 +84,10 @@
 
 21. **hashCode()/equals()**：我们在比较对象是否相等时，首先比较他们的hashCode()，然后才是用equals()来对他们的内存地址进行比较。所以我们将某个类的equals()重写为值比较时，同时需要重写hashCode()。
 
-22. **Java反射机制**：当每个类被装载时，会在Java堆上自动创建一个对应的**Class类**对象，用来实例化这个类的所有对象，我们可以通过反射机制得到一个实例对象的Class类对象。可以应用在泛型，另外可以使用Class c=Class.forName("MyObject")来获得Class类对象。
+22. **Java反射机制**：当每个类被装载时，会在Java堆上自动创建一个对应的**Class类**对象，用来实例化这个类的所有对象，我们可以通过反射机制得到一个实例对象的Class类对象。
 
     - 使用反射的目的：创建实例，反射调用方法
-
-    > Class类：在jvm中通过Class类的实例来获取每个Java类的所有信息。包括字段、方法、构造函数等。
+    - Class类：在jvm中通过Class类的实例来获取每个Java类的所有信息。包括字段、方法、构造函数等。
 
 
 
@@ -123,18 +119,18 @@
 - HashSet：基于哈希表，存储自定义类对象时需要重写hashCode()和equals()方法。
   - LinkedHashSet：基于哈希表和链表，散列到哈希表的同时使用一个链表保存次序。
 
-- TreeSet：基于红黑树，等于现有节点的元素不存储。自定义类应实现Comparable接口。
+- TreeSet：基于红黑树（有序），等于现有节点的元素不存储。自定义类应实现Comparable接口。
 - CopyOnWriteSet：实际上封装了CopyOnWriteArrayList。
 
 #### Map：键值映射
 
 - HashMap：基于哈希表。
-  - LinkedHashMap：基于哈希表和链表，使得存取有序。
-- TreeMap：基于红黑树，需要比较所以自定义类需要实现Comparable接口。（有序）
+  - LinkedHashMap：基于哈希表和双向链表，使得存取有序，可用于实现LRU。
+- TreeMap：基于红黑树（有序）。
 - ConcurrentHashMap：基于哈希表。ConcurrentHashMap通过锁分段技术和volatile实现同步；
   - 一个ConcurrentHashMap实例中包含一个由多个Segment实例组成的数组（一个Segment就相当于一个小哈希表），一个Segment实例包含多个桶。
   - Segment类继承自ReentrantLock类，所以可以在多个不同Segment上同步进行写操作。
-  - ConcurrentHashMap的value域被volatile修饰，可以保证线程的读操作可以读到最新的值，所以读操作不需要上锁。
+  - ConcurrentHashMap的value域被volatile修饰，可以保证线程的读操作可以读到最新的值，读操作不需要上锁。
 
 
 
